@@ -1,40 +1,46 @@
-🏥 Sistema de Gestão Hospitalar
-📘 Descrição do Projeto
+# 🏥 Sistema de Gestão Hospitalar
 
-Este projeto consiste em um sistema simples de controle de estoque hospitalar desenvolvido em Python, utilizando a biblioteca Tkinter para interface gráfica e SQLite como banco de dados.
+## 📘 Descrição do Projeto
+
+Este projeto consiste em um sistema simples de controle de estoque hospitalar desenvolvido em **Python**, utilizando a biblioteca **Tkinter** para interface gráfica e **SQLite** como banco de dados.
 
 O sistema permite:
 
-Cadastrar novos medicamentos;
+- Cadastrar novos medicamentos;
+- Atualizar informações de estoque;
+- Excluir medicamentos;
+- Visualizar todos os medicamentos cadastrados;
+- Solicitar medicamentos, com controle de quantidade disponível.
 
-Atualizar informações de estoque;
+---
 
-Excluir medicamentos;
+## ⚙️ Tecnologias Utilizadas
 
-Visualizar todos os medicamentos cadastrados;
+- **Python 3**
+- **Tkinter** — para criar a interface gráfica;
+- **SQLite3** — banco de dados local embutido;
 
-Solicitar medicamentos, com controle de quantidade disponível.
+---
 
-⚙️ Tecnologias Utilizadas
+## 🧩 Estrutura do Projeto
 
-Python 3
-
-Tkinter — para criar a interface gráfica;
-
-SQLite3 — banco de dados local embutido;
-🧩 Estrutura do Projeto
+```
 projeto_hospitalar/
 │
 ├── main.py         # Arquivo principal com a interface Tkinter
 ├── funcoes.py      # Módulo com todas as funções do sistema
 └── estoque.db      # Banco de dados SQLite gerado automaticamente
+```
 
+---
 
-📄 Arquivo main.py
-Função principal (main())
+## 📄 Arquivo `main.py`
+
+### Função principal (`main()`)
 
 Cria a janela principal do sistema, define o tamanho e adiciona os botões de interação.
 
+```python
 def main():
     root = tk.Tk()
     root.title("Sistema de Gestão Hospitalar")
@@ -49,34 +55,42 @@ def main():
     tk.Button(root, text="Sair", width=25, command=root.destroy).pack(pady=20)
 
     root.mainloop()
-Execução principal
+```
 
-Ao rodar o programa, ele cria ou conecta ao banco de dados estoque.db, cria a tabela (caso não exista) e chama a função principal.
+### Execução principal
+
+```python
 if __name__ == "__main__":
     conexao = funcoes.conectar_banco('estoque.db')
     funcoes.criar_tabelas(conexao)
     main()
-📄 Arquivo funcoes.py
+```
+
+---
+
+## 📄 Arquivo `funcoes.py`
+
+### Conectar e Criar Tabela
+
+```python
 def conectar_banco(nome_banco):
     conexao = sqlite3.connect(nome_banco)
     return conexao
-Cria ou conecta ao banco de dados SQLite informado.
+
 def criar_tabelas(conexao):
     cursor = conexao.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS Estoque(
                 id_produto INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
                 quantidade INTEGER NOT NULL)''')
-Cria a tabela Estoque com os campos:
+```
+Cria a tabela **Estoque** com os campos: `id_produto`, `nome`, `quantidade`.
 
-id_produto → identificador único
+---
 
-nome → nome do medicamento
+### Inserir Medicamento
 
-quantidade → quantidade disponível
-
-2️⃣ Inserir Medicamento
-
+```python
 def inserir_dados_banco(conexao):
     while True:
         nome_produto = simpledialog.askstring("Adicionar Medicamento", "Digite o nome do medicamento (ou Cancelar para sair):")
@@ -88,9 +102,13 @@ def inserir_dados_banco(conexao):
         cursor.execute('''INSERT INTO Estoque(nome, quantidade) VALUES(?, ?)''', (nome_produto.capitalize(), quantidade_produto))
         conexao.commit()
         messagebox.showinfo("Sucesso", f"{nome_produto.capitalize()} adicionado com sucesso!")
-🟢 Permite ao usuário cadastrar novos medicamentos informando nome e quantidade.
+```
 
-3️⃣ Visualizar Estoque
+---
+
+### Visualizar Estoque
+
+```python
 def visualizar_estoque(conexao):
     cursor = conexao.cursor()
     cursor.execute('SELECT id_produto, nome, quantidade FROM Estoque')
@@ -99,9 +117,13 @@ def visualizar_estoque(conexao):
     for produto in produtos:
         texto += f"\nID: {produto[0]} | Nome: {produto[1]} | Quantidade: {produto[2]}\n"
     messagebox.showinfo("Estoque Atual", texto)
-🟢 Mostra todos os medicamentos cadastrados e suas quantidades atuais.
+```
 
-4️⃣ Atualizar Medicamento
+---
+
+### Atualizar Medicamento
+
+```python
 def atualizar_estoque(conexao):
     visualizar_estoque(conexao)
     cursor = conexao.cursor()
@@ -117,9 +139,13 @@ def atualizar_estoque(conexao):
         cursor.execute('UPDATE Estoque SET quantidade = ? WHERE id_produto = ?', (nova_qtd, id_med))
     conexao.commit()
     messagebox.showinfo("Sucesso", "Alteração realizada com sucesso!")
-🟢 Permite alterar o nome ou a quantidade de um medicamento específico.
+```
 
-5️⃣ Solicitar Medicamento
+---
+
+### Solicitar Medicamento
+
+```python
 def solicitar_medicamento(conexao):
     visualizar_estoque(conexao)
     cursor = conexao.cursor()
@@ -132,8 +158,13 @@ def solicitar_medicamento(conexao):
     else:
         conexao.commit()
         messagebox.showinfo('Sucesso', 'Medicamento liberado.')
-🟢 Reduz a quantidade de um medicamento, se houver quantidade suficiente.
-6️⃣ Excluir Medicamento
+```
+
+---
+
+### Excluir Medicamento
+
+```python
 def excluir_estoque(conexao):
     while True:
         visualizar_estoque(conexao)
@@ -144,15 +175,23 @@ def excluir_estoque(conexao):
         cursor.execute('DELETE FROM Estoque WHERE id_produto = ?;', (id_med,))
         conexao.commit()
         messagebox.showinfo('Sucesso', 'Medicamento removido com sucesso!')
-🟢 Exclui um medicamento do banco de dados a partir do seu ID.
-🧠 Classe Estoque
+```
+
+---
+
+## 🧠 Classe `Estoque`
+
+```python
 class Estoque:
     def __init__(self, id, nome, quantidade):
         self.id = id
         self.nome = nome
         self.quantidade = quantidade
+```
 
-🟢 Define um modelo para representar cada medicamento (não é usada diretamente na GUI, mas útil para futuras melhorias).
+---
+
+## 🧾 Tabela de Funções
 
 | Função                    | Descrição                     |
 | ------------------------- | ----------------------------- |
@@ -164,13 +203,14 @@ class Estoque:
 | `conectar_banco()`        | Conecta ao banco SQLite       |
 | `criar_tabelas()`         | Cria a tabela Estoque         |
 
-🚀 Como Executar o Sistema
+---
 
-Certifique-se de ter o Python 3 instalado.
+## 🚀 Como Executar o Sistema
 
-Crie uma pasta com os arquivos main.py e funcoes.py.
+1. Certifique-se de ter o **Python 3** instalado.
+2. Crie uma pasta com os arquivos `main.py` e `funcoes.py`.
+3. Execute o comando no terminal:
 
-Execute o comando no terminal:
+```bash
 python main.py
-
-
+```
